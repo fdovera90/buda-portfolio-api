@@ -1,0 +1,26 @@
+# Node modules y logs
+node_modules
+npm-debug.log
+
+# Archivos de configuración y entorno
+.env
+.env.example
+.vscode/
+jest.config.ts
+tsconfig.test.json
+
+# Archivos de test
+**/*.test.ts
+
+# Cobertura de tests
+coverage/
+
+# Git y documentación
+.git
+.gitignore
+README.md
+
+# Archivos innecesarios en producción
+Dockerfile
+.dockerignore
+*.md
