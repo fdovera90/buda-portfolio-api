@@ -1,44 +1,44 @@
 import { HttpError } from '@shared/http/error-handler';
 import { BudaHttpService } from '@modules/buda/services/buda-http.service';
-import { Portfolio } from '@modules/buda/types/portfolio.types';
+import { Portfolio } from '@modules/buda/types/buda.types';
 
 export class CalculatePortfolioValueUseCase {
-  constructor(
-    private readonly budaHttpService: BudaHttpService
-  ) {}
+    constructor(
+        private readonly budaHttpService: BudaHttpService
+    ) { }
 
-  async execute(
-    portfolio: Portfolio,
-    fiatCurrency: string
-  ): Promise<number> {
-    const entries = Object.entries(portfolio);
+    async execute(
+        portfolio: Portfolio,
+        fiatCurrency: string
+    ): Promise<number> {
+        const entries = Object.entries(portfolio);
 
-    if (entries.length === 0) {
-      throw new HttpError(400, 'Portfolio is empty');
-    }
+        if (entries.length === 0) {
+            throw new HttpError(400, 'Portfolio is empty');
+        }
 
-    const tickers = await Promise.all(
-      entries.map(([symbol]) => {
-        const marketId = `${symbol}-${fiatCurrency}`;
-        return this.budaHttpService.getTicker(marketId);
-      })
-    );
-
-    const total = entries.reduce((acc, [, amount], index) => {
-      const ticker = tickers[index];
-
-      if (!ticker?.ticker?.last_price?.[0]) {
-        throw new HttpError(
-          502,
-          'Invalid response from Buda API'
+        const tickers = await Promise.all(
+            entries.map(([symbol]) => {
+                const marketId = `${symbol}-${fiatCurrency}`.toLowerCase();
+                return this.budaHttpService.getTicker(marketId);
+            })
         );
-      }
 
-      const price = Number(ticker.ticker.last_price[0]);
+        const total = entries.reduce((acc, [, amount], index) => {
+            const ticker = tickers[index];
 
-      return acc + amount * price;
-    }, 0);
+            if (!ticker?.ticker?.last_price?.[0]) {
+                throw new HttpError(
+                    502,
+                    'Invalid response from Buda API'
+                );
+            }
 
-    return total;
-  }
+            const price = Number(ticker.ticker.last_price[0]);
+
+            return acc + amount * price;
+        }, 0);
+
+        return total;
+    }
 }
