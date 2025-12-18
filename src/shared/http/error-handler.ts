@@ -1,29 +1,27 @@
 import { Request, Response, NextFunction } from 'express';
 
 export class HttpError extends Error {
-  public readonly statusCode: number;
-
-  constructor(message: string, statusCode = 500) {
+  constructor(
+    public readonly statusCode: number,
+    message: string
+  ) {
     super(message);
-    this.statusCode = statusCode;
   }
 }
 
-export function errorHandler(
-  error: Error,
+export const errorHandler = (
+  err: Error,
   _req: Request,
   res: Response,
   _next: NextFunction
-) {
-  if (error instanceof HttpError) {
-    return res.status(error.statusCode).json({
-      error: error.message
+) => {
+  if (err instanceof HttpError) {
+    return res.status(err.statusCode).json({
+      error: err.message
     });
   }
-
-  console.error(error);
 
   return res.status(500).json({
     error: 'Internal server error'
   });
-}
+};
