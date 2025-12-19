@@ -1,0 +1,114 @@
+openapi: 3.0.0
+info:
+  title: Buda Portfolio API
+  version: 1.0.0
+  description: API para calcular el valor total de un portafolio de criptomonedas usando la API de Buda.
+
+paths:
+  /buda/portfolio/value:
+    post:
+      summary: Calcular valor de portafolio
+      description: |
+        Calcula el valor total de un portafolio de criptomonedas en una moneda fiat usando precios de la API de Buda.
+      tags:
+        - Portfolio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                portfolio:
+                  type: object
+                  description: Mapa de símbolo de criptomoneda a cantidad poseída (ej. BTC, ETH)
+                  additionalProperties:
+                    type: number
+                    format: float
+                  example:
+                    BTC: 0.5
+                    ETH: 2.0
+                    USDT: 1000
+                fiat_currency:
+                  type: string
+                  description: Moneda fiat en la que se desea el valor total. Debe ser una de: CLP, PEN, COP
+                  enum: [CLP, PEN, COP]
+                  example: CLP
+              required:
+                - portfolio
+                - fiat_currency
+            examples:
+              ejemplo:
+                value:
+                  portfolio:
+                    BTC: 0.5
+                    ETH: 2.0
+                    USDT: 1000
+                  fiat_currency: CLP
+      responses:
+        '200':
+          description: Valor del portafolio calculado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fiat:
+                    type: string
+                    description: Moneda fiat usada para el cálculo
+                    example: CLP
+                  total:
+                    type: number
+                    format: float
+                    description: Valor total del portafolio en la moneda especificada
+                    example: 1234567.89
+                required:
+                  - fiat
+                  - total
+        '400':
+          description: Petición inválida (portfolio requerido, fiat_currency requerido o no soportado)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "portfolio is required"
+                required:
+                  - error
+              examples:
+                portfolioFaltante:
+                  value:
+                    error: "portfolio is required"
+                fiatCurrencyFaltante:
+                  value:
+                    error: "fiatCurrency is required"
+                fiatCurrencyNoSoportado:
+                  value:
+                    error: "fiat_currency must be one of: CLP, PEN, COP"
+        '502':
+          description: Respuesta inválida desde la API de Buda
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid response from Buda API"
+                required:
+                  - error
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+                required:
+                  - error
+
