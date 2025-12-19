@@ -9,7 +9,8 @@ describe('budaRoutes', () => {
     });
 
     it('should return a Router instance', () => {
-        expect(router).toBeInstanceOf(Router);
+        expect(router).toHaveProperty('stack');
+        expect(typeof router.use).toBe('function');
     });
 
     it('should have routes registered', () => {

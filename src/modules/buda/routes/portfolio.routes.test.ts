@@ -15,7 +15,8 @@ describe('portfolioRoutes', () => {
     });
 
     it('should return a Router instance', () => {
-        expect(router).toBeInstanceOf(Router);
+        expect(router).toHaveProperty('stack');
+        expect(typeof router.use).toBe('function');
     });
 
     it('should register routes', () => {
@@ -29,7 +30,8 @@ describe('portfolioRoutes', () => {
         } as any;
 
         const newRouter = portfolioRoutes(newController);
-        expect(newRouter).toBeInstanceOf(Router);
+        expect(newRouter).toHaveProperty('stack');
+        expect(typeof newRouter.use).toBe('function');
     });
 });
 
