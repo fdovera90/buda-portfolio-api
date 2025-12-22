@@ -1,5 +1,6 @@
 import { BudaHttpService } from './buda-http.service';
 import { HttpService } from '../../../shared/http/http.service';
+import { HttpError } from '../../../shared/http/error-handler';
 
 describe('BudaHttpService', () => {
     let budaHttpService: BudaHttpService;
@@ -65,6 +66,22 @@ describe('BudaHttpService', () => {
 
         await expect(budaHttpService.getTicker(marketId)).rejects.toThrow('Network error');
         expect(httpService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw HttpError 400 when API returns 404', async () => {
+        const marketId = 'unknown-clp';
+        const error: any = new Error('Request failed with status code 404');
+        error.response = { status: 404 };
+
+        (httpService.get as jest.Mock).mockRejectedValue(error);
+
+        try {
+            await budaHttpService.getTicker(marketId);
+        } catch (e: any) {
+            expect(e).toBeInstanceOf(HttpError);
+            expect(e.statusCode).toBe(400);
+            expect(e.message).toBe(`Market ${marketId} not found`);
+        }
     });
 
     it('should use the baseUrl from environment variable', async () => {
