@@ -1,3 +1,4 @@
+import { OrderBookResponse } from '../types/buda.types';
 import { HttpService } from '@shared/http/http.service';
 import { Logger } from '@shared/logger/logger';
 import { HttpError } from '@shared/http/error-handler';
@@ -27,6 +28,25 @@ export class BudaHttpService {
                 throw new HttpError(400, `Market ${marketId} not found`);
             }
             throw error;
+        }
+    }
+
+    async getOrderBook(marketId: string): Promise<OrderBookResponse> {
+        const url = `${this.baseUrl}/api/v2/markets/${marketId}/order_book`;
+
+        Logger.info('Requesting order book from Buda API', { marketId, url });
+
+        try {
+            const response = await this.http.get<OrderBookResponse>(url);
+
+            Logger.info('Order book response received', {
+                marketId
+            });
+
+            return response;
+        } catch (error: any) {
+            Logger.error('Error fetching order book', { error });
+            throw new HttpError(502, 'Error fetching order book from Buda API');
         }
     }
 }
